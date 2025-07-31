@@ -45,7 +45,17 @@ resource "aws_s3_bucket" "upload_bucket" {
   bucket        = var.upload_bucket_name
   force_destroy = true
 }
+resource "aws_s3_bucket_cors_configuration" "upload_cors" {
+  bucket = aws_s3_bucket.upload_bucket.id
 
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["PUT", "POST", "GET", "HEAD"]
+    allowed_origins = ["*"] # For development; restrict in prod
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
 resource "aws_lambda_function" "process_uploaded_file" {
   function_name = "process-uploaded-file"
   runtime       = "python3.11"
